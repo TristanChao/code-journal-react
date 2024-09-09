@@ -1,10 +1,6 @@
 import { useState } from 'react';
-import { Entry } from './App.tsx';
 
-type Props = {
-  onSubmit: (entryObj: Entry) => void;
-};
-export function EntryForm({ onSubmit }: Props) {
+export function EntryForm() {
   const [titleText, setTitleText] = useState('');
   const [urlText, setUrlText] = useState<string>();
   const [notesText, setNotesText] = useState('');
@@ -14,14 +10,11 @@ export function EntryForm({ onSubmit }: Props) {
       <h2 className="text-2xl font-semibold mt-4">New Entry</h2>
       <div>
         <img
-          src={urlText ? urlText : '/images/placeholder-image-square.jpg'}
+          src={urlText || '/images/placeholder-image-square.jpg'}
           className="w-full max-h-[500px] max-w-[500px] mt-4"
         />
       </div>
-      <form
-        onSubmit={() =>
-          onSubmit({ title: titleText, photoUrl: urlText, notes: notesText })
-        }>
+      <form>
         <div className="mt-4">
           <label htmlFor="title-input">Title</label>
         </div>

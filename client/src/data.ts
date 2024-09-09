@@ -1,33 +1,72 @@
-import { Entry } from './App.tsx';
+export type UnsavedEntry = {
+  title: string;
+  notes: string;
+  photoUrl: string;
+};
+export type Entry = UnsavedEntry & {
+  entryId: number;
+};
 
-export interface Data {
-  view: 'entries' | 'entry-form';
+type Data = {
   entries: Entry[];
-  editing: null | Entry;
   nextEntryId: number;
-}
+};
 
 const dataKey = 'code-journal-data';
 
-const data = readData();
-
-export function readData(): Data {
+function readData(): Data {
   let data: Data;
   const localData = localStorage.getItem(dataKey);
   if (localData) {
     data = JSON.parse(localData) as Data;
   } else {
     data = {
-      view: 'entry-form',
       entries: [],
-      editing: null,
       nextEntryId: 1,
     };
   }
   return data;
 }
 
-export function writeData(): void {
+function writeData(data: Data): void {
   const dataJSON = JSON.stringify(data);
   localStorage.setItem(dataKey, dataJSON);
+}
+
+export async function readEntries(): Promise<Entry[]> {
+  return readData().entries;
+}
+
+export async function readEntry(entryId: number): Promise<Entry | undefined> {
+  return readData().entries.find((e) => e.entryId === entryId);
+}
+
+export async function addEntry(entry: UnsavedEntry): Promise<Entry> {
+  const data = readData();
+  const newEntry = {
+    ...entry,
+    entryId: data.nextEntryId++,
+  };
+  data.entries.unshift(newEntry);
+  writeData(data);
+  return newEntry;
+}
+
+export async function updateEntry(entry: Entry): Promise<Entry> {
+  const data = readData();
+  const newEntries = data.entries.map((e) =>
+    e.entryId === entry.entryId ? entry : e
+  );
+  data.entries = newEntries;
+  writeData(data);
+  return entry;
+}
+
+export async function removeEntry(entryId: number): Promise<void> {
+  const data = readData();
+  const updatedArray = data.entries.filter(
+    (entry) => entry.entryId !== entryId
+  );
+  data.entries = updatedArray;
+  writeData(data);
 }

@@ -3,8 +3,6 @@ import { Navbar } from './Navbar';
 import { EntriesList } from './EntriesList';
 import { EntryForm } from './EntryForm';
 import { NotFound } from './NotFound';
-import { Data, readData, writeData } from './data.ts';
-import { useEffect, useState } from 'react';
 
 export type Entry = {
   entryId: number;
@@ -14,35 +12,12 @@ export type Entry = {
 };
 
 export default function App() {
-  const [data, setData] = useState<Data>();
-
-  const dummy: Entry[] = [
-    {
-      entryId: 0,
-      photoUrl: 'https://picsum.photos/200',
-      title: 'Title',
-      notes: 'Caption!!!!',
-    },
-  ];
-
-  useEffect(() => {
-    setData(readData);
-  }, []);
-
-  function handleSubmit(entryObj: Entry) {
-    data.entries.push(entryObj);
-    writeData();
-  }
-
   return (
     <>
       <Routes>
         <Route path="/" element={<Navbar />}>
-          <Route index element={<EntriesList dataList={dummy} />} />
-          <Route
-            path="details/:entryId"
-            element={<EntryForm onSubmit={handleSubmit} />}
-          />
+          <Route index element={<EntriesList />} />
+          <Route path="details/:entryId" element={<EntryForm />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

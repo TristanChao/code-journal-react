@@ -1,9 +1,23 @@
+import { useEffect, useState } from 'react';
 import { Entry } from './App';
-type EntriesListProps = {
-  dataList: Entry[];
-};
+import { readEntries } from './data';
 
-export function EntriesList({ dataList }: EntriesListProps) {
+export function EntriesList() {
+  const [entries, setEntries] = useState<Entry[]>([]);
+
+  useEffect(() => {
+    async function read() {
+      try {
+        const response = await readEntries();
+        setEntries(response);
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    }
+
+    read();
+  }, []);
+
   return (
     <div className="flex flex-col px-20">
       <div className="flex items-center justify-between my-3">
@@ -13,8 +27,8 @@ export function EntriesList({ dataList }: EntriesListProps) {
         </button>
       </div>
       <div className="flex flex-col">
-        {dataList.map((entr) => {
-          return <EntryCard key={entr.entryId} entry={entr} />;
+        {entries.map((entry) => {
+          return <EntryCard key={entry.entryId} entry={entry} />;
         })}
       </div>
     </div>
