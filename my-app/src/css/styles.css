@@ -1,5 +1,17 @@
 .header {
   background-color: #562b81;
+  color: white;
+  padding: 5px 20px;
+}
+
+.header > * {
+  color: white;
+  margin-right: 20px;
+}
+
+.header > a {
+  font-size: 20px;
+  text-decoration: none;
 }
 
 .form-image {
