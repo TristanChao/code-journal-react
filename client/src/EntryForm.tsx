@@ -1,9 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { addEntry, readEntry, updateEntry } from './data.ts';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export function EntryForm() {
   const [titleText, setTitleText] = useState('');
-  const [urlText, setUrlText] = useState<string>();
+  const [urlText, setUrlText] = useState('');
   const [notesText, setNotesText] = useState('');
+  const [entryNumber, setEntryNumber] = useState(0);
+  const navigate = useNavigate();
+  const { entryId } = useParams();
+  // {entryId : 'id'}
+
+  useEffect(() => {
+    async function read() {
+      try {
+        const response = await readEntry(Number(entryId));
+        if (!response) {
+          return;
+        }
+        setTitleText(response.title);
+        setUrlText(response.photoUrl);
+        setNotesText(response.notes);
+        setEntryNumber(response.entryId);
+      } catch (err) {
+        console.error(`Error: ${err}`);
+      }
+    }
+    read();
+  }, []);
+
+  async function handleSubmit() {
+    try {
+      const newEntryObj = {
+        title: titleText,
+        photoUrl: urlText,
+        notes: notesText,
+        entryId: entryNumber,
+      };
+      if (entryId === 'new') {
+        await addEntry(newEntryObj);
+      } else {
+        await updateEntry(newEntryObj);
+      }
+      navigate('/');
+    } catch (err) {
+      console.error(`Error: ${err}`);
+    }
+  }
 
   return (
     <div className="px-20">
@@ -14,7 +57,7 @@ export function EntryForm() {
           className="w-full max-h-[500px] max-w-[500px] mt-4"
         />
       </div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="mt-4">
           <label htmlFor="title-input">Title</label>
         </div>
