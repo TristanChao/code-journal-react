@@ -1,10 +1,8 @@
-export type UnsavedEntry = {
+export type Entry = {
   title: string;
   notes: string;
   photoUrl: string;
-};
-export type Entry = UnsavedEntry & {
-  entryId: number;
+  entryId?: number;
 };
 
 type Data = {
@@ -41,7 +39,7 @@ export async function readEntry(entryId: number): Promise<Entry | undefined> {
   return readData().entries.find((e) => e.entryId === entryId);
 }
 
-export async function addEntry(entry: UnsavedEntry): Promise<Entry> {
+export async function addEntry(entry: Entry): Promise<Entry> {
   const data = readData();
   const newEntry = {
     ...entry,
