@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react';
-import { addEntry, readEntry, updateEntry } from './data.ts';
+import { useEffect, useRef, useState } from 'react';
+import {
+  addEntry,
+  Entry,
+  readEntry,
+  removeEntry,
+  updateEntry,
+} from './data.ts';
 import { useNavigate, useParams } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 export function EntryForm() {
   const [titleText, setTitleText] = useState('');
   const [urlText, setUrlText] = useState('');
   const [notesText, setNotesText] = useState('');
-  const [entryNumber, setEntryNumber] = useState(0);
   const navigate = useNavigate();
   const { entryId } = useParams();
-  // {entryId : 'id'}
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     async function read() {
@@ -21,30 +27,43 @@ export function EntryForm() {
         setTitleText(response.title);
         setUrlText(response.photoUrl);
         setNotesText(response.notes);
-        setEntryNumber(response.entryId);
       } catch (err) {
         console.error(`Error: ${err}`);
       }
     }
-    read();
-  }, []);
+
+    if (entryId) {
+      read();
+    }
+  }, [entryId]);
 
   async function handleSubmit() {
     try {
-      const newEntryObj = {
+      const newEntryObj: Entry = {
         title: titleText,
         photoUrl: urlText,
         notes: notesText,
-        entryId: entryNumber,
       };
-      if (entryId === 'new') {
+      if (entryId === undefined) {
         await addEntry(newEntryObj);
       } else {
+        newEntryObj.entryId = +entryId;
         await updateEntry(newEntryObj);
       }
       navigate('/');
     } catch (err) {
       console.error(`Error: ${err}`);
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      await removeEntry(Number(entryId));
+      modalRef.current?.close();
+      alert('Entry deleted!');
+      navigate('/');
+    } catch (err) {
+      console.error('Error:', err);
     }
   }
 
@@ -88,12 +107,38 @@ export function EntryForm() {
           id="notes-input"
           className="border bg-gray-100 w-full"
         />
-        <div className="flex justify-end my-4">
+        <div className="flex flex-row-reverse justify-between my-4">
           <button className="bg-purple-900 text-white rounded-md py-1 px-4">
             SAVE
           </button>
+          {entryId && (
+            <button
+              type="button"
+              onClick={() => modalRef.current?.showModal()}
+              className="text-red-500 underline">
+              Delete Entry
+            </button>
+          )}
         </div>
       </form>
+      {createPortal(
+        <dialog ref={modalRef} className="px-5 py-6">
+          Are you sure you want to delete this entry?
+          <div className="flex justify-around mt-4">
+            <button
+              onClick={() => modalRef.current?.close()}
+              className="bg-gray-600 text-white rounded-md px-3 py-1">
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 text-white rounded-md px-3 py-1">
+              Delete
+            </button>
+          </div>
+        </dialog>,
+        document.body
+      )}
     </div>
   );
 }
