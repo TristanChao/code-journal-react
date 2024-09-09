@@ -1,5 +1,6 @@
-/* exported data, writeData */
-interface Data {
+import { Entry } from './App.tsx';
+
+export interface Data {
   view: 'entries' | 'entry-form';
   entries: Entry[];
   editing: null | Entry;
@@ -10,7 +11,7 @@ const dataKey = 'code-journal-data';
 
 const data = readData();
 
-function readData(): Data {
+export function readData(): Data {
   let data: Data;
   const localData = localStorage.getItem(dataKey);
   if (localData) {
@@ -26,8 +27,7 @@ function readData(): Data {
   return data;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- exported
-function writeData(): void {
+export function writeData(): void {
   const dataJSON = JSON.stringify(data);
   localStorage.setItem(dataKey, dataJSON);
 }
